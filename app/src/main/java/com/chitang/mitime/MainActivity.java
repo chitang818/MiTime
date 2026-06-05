@@ -2,13 +2,17 @@ package com.chitang.mitime;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.StatusBarManager;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,6 +32,8 @@ import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
+    private static final String ACTION_QUICK_SETTINGS_SETTINGS =
+            "android.settings.QUICK_SETTINGS_SETTINGS";
     private static final String PREFS_THEME = "theme";
     private static final String KEY_IS_LIGHT_THEME = "is_light_theme_stage";
     private static final long CLOCK_TICK_OFFSET_MS = 40L;
@@ -73,23 +79,22 @@ public class MainActivity extends Activity {
     private View statusChip;
     private View timePillWrap;
     private View connectorLine;
-    private View statusDot;
+    private ImageView statusDot;
     private ImageView floatingIcon;
     private TextView statusTitle;
     private TextView timePreviewText;
     private TextView statusText;
     private TextView verifyText;
     private View permissionPanel;
+    private TextView readinessTitle;
+    private View readinessDivider;
     private ImageView permissionDot;
     private TextView permissionTitle;
-    private TextView permissionStatus;
     private TextView permissionButton;
-    private View actionPanel;
-    private View toggleButton;
-    private ImageView actionPowerIcon;
-    private View actionDivider;
-    private TextView actionLabel;
-    private TextView statusHint;
+    private View tileIconWrap;
+    private ImageView tileIcon;
+    private TextView tileTitle;
+    private TextView tileButton;
     private TextView footerText;
     private ThemePalette currentPalette;
     private boolean isLightTheme;
@@ -128,23 +133,23 @@ public class MainActivity extends Activity {
         statusText = findViewById(R.id.statusText);
         verifyText = findViewById(R.id.verifyText);
         permissionPanel = findViewById(R.id.permissionPanel);
+        readinessTitle = findViewById(R.id.readinessTitle);
+        readinessDivider = findViewById(R.id.readinessDivider);
         permissionDot = findViewById(R.id.permissionDot);
         permissionTitle = findViewById(R.id.permissionTitle);
-        permissionStatus = findViewById(R.id.permissionStatus);
         permissionButton = findViewById(R.id.permissionButton);
-        actionPanel = findViewById(R.id.actionPanel);
-        toggleButton = findViewById(R.id.toggleButton);
-        actionPowerIcon = findViewById(R.id.actionPowerIcon);
-        actionDivider = findViewById(R.id.actionDivider);
-        actionLabel = findViewById(R.id.actionLabel);
-        statusHint = findViewById(R.id.statusHint);
+        tileIconWrap = findViewById(R.id.tileIconWrap);
+        tileIcon = findViewById(R.id.tileIcon);
+        tileTitle = findViewById(R.id.tileTitle);
+        tileButton = findViewById(R.id.tileButton);
         footerText = findViewById(R.id.footerText);
 
         bindSystemInsets();
         applyTheme();
         themeToggleButton.setOnClickListener(v -> onThemeToggleClicked());
         permissionButton.setOnClickListener(v -> openWriteSettingsPage());
-        toggleButton.setOnClickListener(v -> onToggleClicked());
+        tileButton.setOnClickListener(v -> onAddTileClicked());
+        statusChip.setOnClickListener(v -> onToggleClicked());
 
         footerText.setText(getString(R.string.app_footer, getVersionName()));
         updateClockPreview();
@@ -179,7 +184,7 @@ public class MainActivity extends Activity {
     }
 
     private void onToggleClicked() {
-        animatePress(toggleButton);
+        animatePress(statusChip);
         if (!PermissionHelper.canWriteSystemSettings(this)) {
             openWriteSettingsPage();
             return;
@@ -208,55 +213,42 @@ public class MainActivity extends Activity {
         boolean canWrite = state != FloatingWindowHelper.UiState.PERMISSION_MISSING;
         boolean enabled = state == FloatingWindowHelper.UiState.ENABLED;
         int accent = canWrite ? (enabled ? palette.accent : palette.off) : palette.warning;
-        int actionAccent = canWrite ? palette.accent : palette.warning;
 
-        toggleButton.setEnabled(true);
+        statusChip.setEnabled(true);
 
         statusTitle.setText(R.string.time_floating_window);
         statusText.setText(canWrite
                 ? (enabled ? R.string.status_enabled_short : R.string.status_disabled_short)
                 : R.string.status_write_settings_off_short);
-        verifyText.setText(canWrite ? R.string.verify_ok : R.string.verify_write_settings_off);
-        permissionStatus.setText(canWrite
-                ? R.string.write_settings_granted
-                : R.string.write_settings_missing);
+        verifyText.setText(canWrite
+                ? (enabled ? R.string.toggle_hint_turn_off : R.string.toggle_hint_turn_on)
+                : R.string.verify_write_settings_off);
+        statusChip.setContentDescription(getString(canWrite
+                ? (enabled ? R.string.toggle_hint_turn_off : R.string.toggle_hint_turn_on)
+                : R.string.write_settings_get));
         permissionButton.setText(canWrite
                 ? R.string.write_settings_open
                 : R.string.write_settings_get);
-        actionLabel.setText(canWrite
-                ? (enabled ? R.string.action_turn_off : R.string.action_turn_on)
-                : R.string.write_settings_get);
-        statusHint.setText(canWrite ? R.string.status_hint : R.string.status_hint_write_settings_off);
+        refreshReadinessState(canWrite, palette);
 
-        statusDot.setBackground(makeOval(accent));
+        statusDot.setImageResource(canWrite
+                ? (enabled ? R.drawable.ic_switch_on : R.drawable.ic_switch_off)
+                : R.drawable.ic_switch_unavailable);
+        statusDot.setColorFilter(accent);
         connectorLine.setBackgroundColor(blendAlpha(accent, isLightTheme ? 80 : 150));
-        permissionDot.setColorFilter(canWrite ? palette.accent : palette.warning);
         floatingIcon.setColorFilter(accent);
         floatingIcon.setAlpha(canWrite && !enabled ? 0.62f : 1f);
         timePreviewText.setTextColor(resolveTimeTextColor(palette, enabled, canWrite));
         timePillWrap.setAlpha(canWrite && !enabled ? 0.76f : 1f);
-        toggleButton.setBackground(makeActionBackground(actionAccent));
-        actionPowerIcon.setColorFilter(Color.WHITE);
-        actionDivider.setBackgroundColor(blendAlpha(Color.WHITE, 70));
-        actionLabel.setTextColor(Color.WHITE);
-        permissionButton.setTextColor(canWrite ? palette.textPrimary : Color.WHITE);
-        permissionButton.setBackground(makeRoundRect(
-                canWrite ? palette.controlBackground : palette.warning,
-                dp(19),
-                canWrite ? palette.border : palette.warning
-        ));
         statusPanel.setBackgroundColor(Color.TRANSPARENT);
-        statusIconWrap.setBackground(makePermissionIconBackground(canWrite ? palette.accent : palette.warning));
         statusChip.setBackground(makeStatusChipBackground(accent));
         timePillWrap.setBackground(makeTimePillBackground(palette, enabled, canWrite));
         permissionPanel.setBackground(makeGlassRect(dp(24), palette.surface, palette.border));
-        actionPanel.setBackgroundColor(Color.TRANSPARENT);
         statusText.setTextColor(accent);
         verifyText.setTextColor(palette.textSecondary);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             timePillWrap.setElevation(dp(canWrite && enabled ? 12 : 4));
             statusChip.setElevation(dp(canWrite && enabled ? 8 : 4));
-            toggleButton.setElevation(dp(8));
         }
 
         if (animated) {
@@ -288,11 +280,9 @@ public class MainActivity extends Activity {
         timePillWrap.setAlpha(1f);
         floatingIcon.setAlpha(1f);
         permissionPanel.setBackground(makeGlassRect(dp(24), palette.surface, palette.border));
-        actionPanel.setBackgroundColor(Color.TRANSPARENT);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             timePillWrap.setElevation(dp(12));
             statusChip.setElevation(dp(8));
-            toggleButton.setElevation(dp(8));
         }
 
         appTitle.setTextColor(palette.textPrimary);
@@ -302,14 +292,13 @@ public class MainActivity extends Activity {
         connectorLine.setBackgroundColor(blendAlpha(palette.accent, isLightTheme ? 80 : 150));
         statusText.setTextColor(palette.textPrimary);
         verifyText.setTextColor(palette.textSecondary);
+        readinessTitle.setTextColor(palette.textPrimary);
+        readinessDivider.setBackgroundColor(blendAlpha(palette.textSecondary, isLightTheme ? 34 : 46));
         permissionDot.setColorFilter(palette.accent);
         permissionTitle.setTextColor(palette.textPrimary);
-        permissionStatus.setTextColor(palette.textSecondary);
-        statusHint.setTextColor(palette.textSecondary);
+        tileIcon.setColorFilter(palette.accent);
+        tileTitle.setTextColor(palette.textPrimary);
         footerText.setTextColor(palette.textSecondary);
-        actionPowerIcon.setColorFilter(Color.WHITE);
-        actionDivider.setBackgroundColor(blendAlpha(Color.WHITE, 70));
-        actionLabel.setTextColor(Color.WHITE);
 
         themeToggleButton.setBackground(makeRoundRect(palette.themeButtonBackground, dp(15), palette.border));
         themeToggleButton.setImageResource(isLightTheme ? R.drawable.ic_theme_sun : R.drawable.ic_theme_moon);
@@ -319,6 +308,82 @@ public class MainActivity extends Activity {
         ));
 
         applySystemBars(palette);
+    }
+
+    private void refreshReadinessState(boolean canWrite, ThemePalette palette) {
+        boolean added = MiTimeTileService.isTileAdded(this);
+        int success = Color.rgb(34, 197, 94);
+        int pending = palette.warning;
+        int tileAccent = added ? success : pending;
+        permissionButton.setText(canWrite
+                ? R.string.status_badge_done
+                : R.string.write_settings_get);
+        permissionButton.setTextColor(canWrite ? palette.textPrimary : Color.WHITE);
+        permissionButton.setBackground(makeRoundRect(
+                canWrite ? palette.controlBackground : pending,
+                dp(15),
+                canWrite ? palette.border : pending
+        ));
+        permissionDot.setColorFilter(canWrite ? success : pending);
+        statusIconWrap.setBackground(makePermissionIconBackground(canWrite ? success : pending));
+
+        tileIcon.setColorFilter(tileAccent);
+        tileIconWrap.setBackground(makePermissionIconBackground(tileAccent));
+        if (added) {
+            tileButton.setText(R.string.status_badge_added);
+            tileButton.setTextColor(palette.textPrimary);
+            tileButton.setBackground(makeRoundRect(palette.controlBackground, dp(15), palette.border));
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            tileButton.setText(R.string.quick_settings_tile_add);
+            tileButton.setTextColor(Color.WHITE);
+            tileButton.setBackground(makeRoundRect(tileAccent, dp(15), tileAccent));
+        } else {
+            tileButton.setText(R.string.quick_settings_tile_open);
+            tileButton.setTextColor(Color.WHITE);
+            tileButton.setBackground(makeRoundRect(tileAccent, dp(15), tileAccent));
+        }
+    }
+
+    private void onAddTileClicked() {
+        animatePress(tileButton);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            TileAddRequester.request(this);
+        } else {
+            Toast.makeText(this, R.string.quick_settings_tile_manual_toast, Toast.LENGTH_LONG).show();
+            openQuickSettingsPage();
+        }
+    }
+
+    private void onTileAddRequestResult(int result) {
+        if (result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED
+                || result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED) {
+            MiTimeTileService.setTileAdded(this, true);
+        }
+        refreshState(false);
+
+        int message;
+        if (result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED) {
+            message = R.string.quick_settings_tile_added_toast;
+        } else if (result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED) {
+            message = R.string.quick_settings_tile_already_added_toast;
+        } else if (result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_NOT_ADDED) {
+            message = R.string.quick_settings_tile_not_added_toast;
+        } else {
+            message = R.string.quick_settings_tile_request_failed;
+        }
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    private void openQuickSettingsPage() {
+        try {
+            startActivity(new Intent(ACTION_QUICK_SETTINGS_SETTINGS));
+        } catch (ActivityNotFoundException exception) {
+            try {
+                startActivity(new Intent(Settings.ACTION_SETTINGS));
+            } catch (ActivityNotFoundException fallbackException) {
+                Toast.makeText(this, R.string.quick_settings_tile_page_failed, Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private void updateClockPreview() {
@@ -490,18 +555,6 @@ public class MainActivity extends Activity {
         return isLightTheme ? Color.rgb(92, 101, 119) : Color.rgb(138, 153, 176);
     }
 
-    private GradientDrawable makeActionBackground(int accent) {
-        int[] colors = new int[]{
-                blendAlpha(Color.WHITE, 18),
-                accent,
-                Color.rgb(13, 94, 255)
-        };
-        GradientDrawable drawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-        drawable.setCornerRadius(dp(33));
-        drawable.setStroke(dp(1), blendAlpha(Color.WHITE, 135));
-        return drawable;
-    }
-
     private GradientDrawable makeGlassRect(int radiusPx, int fillColor, int strokeColor) {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setColor(fillColor);
@@ -610,6 +663,32 @@ public class MainActivity extends Activity {
             this.systemBar = systemBar;
             this.border = border;
             this.controlBackground = themeButtonBackground;
+        }
+    }
+
+    private static final class TileAddRequester {
+        @TargetApi(Build.VERSION_CODES.TIRAMISU)
+        static void request(MainActivity activity) {
+            try {
+                StatusBarManager statusBarManager =
+                        activity.getSystemService(StatusBarManager.class);
+                if (statusBarManager == null) {
+                    throw new IllegalStateException("Status bar service unavailable");
+                }
+                statusBarManager.requestAddTileService(
+                        new ComponentName(activity, MiTimeTileService.class),
+                        activity.getString(R.string.app_name),
+                        Icon.createWithResource(activity, R.drawable.ic_tile_off),
+                        activity.getMainExecutor(),
+                        activity::onTileAddRequestResult
+                );
+            } catch (RuntimeException exception) {
+                Toast.makeText(
+                        activity,
+                        R.string.quick_settings_tile_request_failed,
+                        Toast.LENGTH_LONG
+                ).show();
+            }
         }
     }
 }
