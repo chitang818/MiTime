@@ -24,7 +24,7 @@
     <string name="write_settings_page_failed">无法打开权限设置页</string>
     <string name="app_footer">MiTime v%1$s · APP by chitang</string>
     <string name="app_footer_fallback">MiTime · APP by chitang</string>
-    <string name="home_subtitle">一键开关小米系统内置的时间悬浮窗。</string>
+    <string name="home_subtitle">一键开启系统时间悬浮窗</string>
     <string name="toggle_failed">切换失败，请检查系统权限</string>
     <string name="toggle_need_system_settings">请先获取修改系统设置权限</string>
     <string name="toggle_blocked_private_setting">当前系统限制第三方 App 修改此开关，请在开发者选项中手动切换</string>

@@ -12,6 +12,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
 import android.view.WindowManager;
@@ -21,79 +23,108 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class MainActivity extends Activity {
     private static final String PREFS_THEME = "theme";
-    private static final String KEY_IS_LIGHT_THEME = "is_light_theme";
+    private static final String KEY_IS_LIGHT_THEME = "is_light_theme_stage";
+    private static final long CLOCK_TICK_OFFSET_MS = 40L;
 
     private static final ThemePalette DARK_THEME = new ThemePalette(
-            Color.rgb(10, 13, 20),
-            Color.rgb(22, 28, 39),
-            Color.rgb(29, 37, 50),
+            Color.rgb(4, 12, 28),
+            Color.argb(42, 255, 255, 255),
+            Color.argb(54, 126, 165, 255),
             Color.rgb(242, 246, 255),
-            Color.rgb(143, 154, 172),
-            Color.rgb(34, 132, 255),
-            Color.rgb(13, 71, 150),
-            Color.rgb(71, 82, 99),
+            Color.rgb(164, 178, 205),
+            Color.rgb(40, 125, 255),
+            Color.argb(60, 125, 166, 255),
+            Color.rgb(118, 128, 148),
             Color.rgb(255, 180, 84),
-            Color.rgb(22, 28, 39),
+            Color.argb(48, 255, 255, 255),
             Color.rgb(242, 246, 255),
-            Color.rgb(10, 13, 20),
-            Color.argb(22, 255, 255, 255)
+            Color.rgb(4, 12, 28),
+            Color.argb(54, 255, 255, 255)
     );
     private static final ThemePalette LIGHT_THEME = new ThemePalette(
-            Color.rgb(246, 248, 251),
-            Color.WHITE,
-            Color.rgb(255, 255, 255),
-            Color.rgb(18, 24, 38),
-            Color.rgb(95, 107, 122),
-            Color.rgb(34, 132, 255),
-            Color.rgb(216, 233, 255),
-            Color.rgb(138, 150, 168),
-            Color.rgb(232, 139, 42),
-            Color.rgb(233, 238, 247),
-            Color.rgb(18, 24, 38),
-            Color.rgb(246, 248, 251),
-            Color.rgb(221, 228, 238)
+            Color.rgb(246, 250, 255),
+            Color.argb(178, 255, 255, 255),
+            Color.argb(168, 255, 255, 255),
+            Color.rgb(16, 24, 40),
+            Color.rgb(105, 117, 139),
+            Color.rgb(47, 124, 246),
+            Color.argb(190, 234, 243, 255),
+            Color.rgb(113, 113, 122),
+            Color.rgb(245, 158, 11),
+            Color.argb(170, 244, 248, 253),
+            Color.rgb(16, 24, 40),
+            Color.rgb(246, 250, 255),
+            Color.argb(150, 193, 213, 239)
     );
 
     private View root;
-    private View appIconWrap;
+    private View pageContent;
     private TextView appTitle;
     private ImageButton themeToggleButton;
     private TextView homeSubtitle;
     private View statusPanel;
+    private View statusIconWrap;
+    private View statusChip;
+    private View timePillWrap;
+    private View connectorLine;
     private View statusDot;
     private ImageView floatingIcon;
     private TextView statusTitle;
+    private TextView timePreviewText;
     private TextView statusText;
     private TextView verifyText;
     private View permissionPanel;
-    private View permissionDot;
+    private ImageView permissionDot;
     private TextView permissionTitle;
     private TextView permissionStatus;
     private TextView permissionButton;
-    private TextView toggleButton;
+    private View actionPanel;
+    private View toggleButton;
+    private ImageView actionPowerIcon;
+    private View actionDivider;
+    private TextView actionLabel;
     private TextView statusHint;
     private TextView footerText;
     private ThemePalette currentPalette;
     private boolean isLightTheme;
+    private final Handler clockHandler = new Handler(Looper.getMainLooper());
+    private final SimpleDateFormat clockFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+    private final Runnable clockTicker = new Runnable() {
+        @Override
+        public void run() {
+            updateClockPreview();
+            postNextClockTick();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         currentPalette = resolveThemePalette();
         setTheme(isLightTheme ? R.style.AppTheme_Light : R.style.AppTheme);
         super.onCreate(savedInstanceState);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
         root = findViewById(R.id.root);
-        appIconWrap = findViewById(R.id.appIconWrap);
+        pageContent = findViewById(R.id.pageContent);
         appTitle = findViewById(R.id.appTitle);
         themeToggleButton = findViewById(R.id.themeToggleButton);
         homeSubtitle = findViewById(R.id.homeSubtitle);
         statusPanel = findViewById(R.id.statusPanel);
+        statusIconWrap = findViewById(R.id.statusIconWrap);
+        statusChip = findViewById(R.id.statusChip);
+        timePillWrap = findViewById(R.id.timePillWrap);
+        connectorLine = findViewById(R.id.connectorLine);
         statusDot = findViewById(R.id.statusDot);
         floatingIcon = findViewById(R.id.floatingIcon);
         statusTitle = findViewById(R.id.statusTitle);
+        timePreviewText = findViewById(R.id.timePreviewText);
         statusText = findViewById(R.id.statusText);
         verifyText = findViewById(R.id.verifyText);
         permissionPanel = findViewById(R.id.permissionPanel);
@@ -101,16 +132,22 @@ public class MainActivity extends Activity {
         permissionTitle = findViewById(R.id.permissionTitle);
         permissionStatus = findViewById(R.id.permissionStatus);
         permissionButton = findViewById(R.id.permissionButton);
+        actionPanel = findViewById(R.id.actionPanel);
         toggleButton = findViewById(R.id.toggleButton);
+        actionPowerIcon = findViewById(R.id.actionPowerIcon);
+        actionDivider = findViewById(R.id.actionDivider);
+        actionLabel = findViewById(R.id.actionLabel);
         statusHint = findViewById(R.id.statusHint);
         footerText = findViewById(R.id.footerText);
 
+        bindSystemInsets();
         applyTheme();
         themeToggleButton.setOnClickListener(v -> onThemeToggleClicked());
         permissionButton.setOnClickListener(v -> openWriteSettingsPage());
         toggleButton.setOnClickListener(v -> onToggleClicked());
 
         footerText.setText(getString(R.string.app_footer, getVersionName()));
+        updateClockPreview();
     }
 
     @Override
@@ -119,6 +156,14 @@ public class MainActivity extends Activity {
         currentPalette = resolveThemePalette();
         applyTheme();
         refreshState(false);
+        clockHandler.removeCallbacks(clockTicker);
+        clockTicker.run();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        clockHandler.removeCallbacks(clockTicker);
     }
 
     private void onThemeToggleClicked() {
@@ -163,13 +208,14 @@ public class MainActivity extends Activity {
         boolean canWrite = state != FloatingWindowHelper.UiState.PERMISSION_MISSING;
         boolean enabled = state == FloatingWindowHelper.UiState.ENABLED;
         int accent = canWrite ? (enabled ? palette.accent : palette.off) : palette.warning;
+        int actionAccent = canWrite ? palette.accent : palette.warning;
 
         toggleButton.setEnabled(true);
 
         statusTitle.setText(R.string.time_floating_window);
         statusText.setText(canWrite
-                ? (enabled ? R.string.status_enabled : R.string.status_disabled)
-                : R.string.status_write_settings_off);
+                ? (enabled ? R.string.status_enabled_short : R.string.status_disabled_short)
+                : R.string.status_write_settings_off_short);
         verifyText.setText(canWrite ? R.string.verify_ok : R.string.verify_write_settings_off);
         permissionStatus.setText(canWrite
                 ? R.string.write_settings_granted
@@ -177,24 +223,41 @@ public class MainActivity extends Activity {
         permissionButton.setText(canWrite
                 ? R.string.write_settings_open
                 : R.string.write_settings_get);
-        toggleButton.setText(canWrite
+        actionLabel.setText(canWrite
                 ? (enabled ? R.string.action_turn_off : R.string.action_turn_on)
                 : R.string.write_settings_get);
         statusHint.setText(canWrite ? R.string.status_hint : R.string.status_hint_write_settings_off);
 
         statusDot.setBackground(makeOval(accent));
-        permissionDot.setBackground(makeOval(canWrite ? palette.accent : palette.warning));
+        connectorLine.setBackgroundColor(blendAlpha(accent, isLightTheme ? 80 : 150));
+        permissionDot.setColorFilter(canWrite ? palette.accent : palette.warning);
         floatingIcon.setColorFilter(accent);
-        toggleButton.setTextColor(Color.WHITE);
-        toggleButton.setBackground(makeOval(accent));
+        floatingIcon.setAlpha(canWrite && !enabled ? 0.62f : 1f);
+        timePreviewText.setTextColor(resolveTimeTextColor(palette, enabled, canWrite));
+        timePillWrap.setAlpha(canWrite && !enabled ? 0.76f : 1f);
+        toggleButton.setBackground(makeActionBackground(actionAccent));
+        actionPowerIcon.setColorFilter(Color.WHITE);
+        actionDivider.setBackgroundColor(blendAlpha(Color.WHITE, 70));
+        actionLabel.setTextColor(Color.WHITE);
         permissionButton.setTextColor(canWrite ? palette.textPrimary : Color.WHITE);
         permissionButton.setBackground(makeRoundRect(
                 canWrite ? palette.controlBackground : palette.warning,
                 dp(19),
                 canWrite ? palette.border : palette.warning
         ));
-        statusPanel.setBackground(makeRoundRect(palette.surfaceElevated, dp(26), palette.border));
-        permissionPanel.setBackground(makeRoundRect(palette.surface, dp(22), palette.border));
+        statusPanel.setBackgroundColor(Color.TRANSPARENT);
+        statusIconWrap.setBackground(makePermissionIconBackground(canWrite ? palette.accent : palette.warning));
+        statusChip.setBackground(makeStatusChipBackground(accent));
+        timePillWrap.setBackground(makeTimePillBackground(palette, enabled, canWrite));
+        permissionPanel.setBackground(makeGlassRect(dp(24), palette.surface, palette.border));
+        actionPanel.setBackgroundColor(Color.TRANSPARENT);
+        statusText.setTextColor(accent);
+        verifyText.setTextColor(palette.textSecondary);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            timePillWrap.setElevation(dp(canWrite && enabled ? 12 : 4));
+            statusChip.setElevation(dp(canWrite && enabled ? 8 : 4));
+            toggleButton.setElevation(dp(8));
+        }
 
         if (animated) {
             animateStateChange(statusPanel, floatingIcon);
@@ -206,38 +269,86 @@ public class MainActivity extends Activity {
         if (prefs.contains(KEY_IS_LIGHT_THEME)) {
             isLightTheme = prefs.getBoolean(KEY_IS_LIGHT_THEME, false);
         } else {
-            int nightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-            isLightTheme = nightMode != Configuration.UI_MODE_NIGHT_YES;
+            isLightTheme = false;
         }
         return isLightTheme ? LIGHT_THEME : DARK_THEME;
     }
 
     private void applyTheme() {
         ThemePalette palette = currentPalette != null ? currentPalette : resolveThemePalette();
-        root.setBackgroundColor(palette.background);
+        root.setBackground(makePageBackground());
+        if (root instanceof AtmosphereScrollView) {
+            ((AtmosphereScrollView) root).setLightTheme(isLightTheme);
+        }
         getWindow().getDecorView().setBackgroundColor(palette.background);
-        appIconWrap.setBackground(makeRoundRect(palette.appIconBackground, dp(16), palette.border));
-        statusPanel.setBackground(makeRoundRect(palette.surfaceElevated, dp(26), palette.border));
-        permissionPanel.setBackground(makeRoundRect(palette.surface, dp(22), palette.border));
+        statusPanel.setBackgroundColor(Color.TRANSPARENT);
+        statusIconWrap.setBackground(makePermissionIconBackground(palette.accent));
+        statusChip.setBackground(makeStatusChipBackground(palette.accent));
+        timePillWrap.setBackground(makeTimePillBackground(palette, true, true));
+        timePillWrap.setAlpha(1f);
+        floatingIcon.setAlpha(1f);
+        permissionPanel.setBackground(makeGlassRect(dp(24), palette.surface, palette.border));
+        actionPanel.setBackgroundColor(Color.TRANSPARENT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            timePillWrap.setElevation(dp(12));
+            statusChip.setElevation(dp(8));
+            toggleButton.setElevation(dp(8));
+        }
 
         appTitle.setTextColor(palette.textPrimary);
         homeSubtitle.setTextColor(palette.textSecondary);
         statusTitle.setTextColor(palette.textPrimary);
+        timePreviewText.setTextColor(resolveTimeTextColor(palette, true, true));
+        connectorLine.setBackgroundColor(blendAlpha(palette.accent, isLightTheme ? 80 : 150));
         statusText.setTextColor(palette.textPrimary);
         verifyText.setTextColor(palette.textSecondary);
+        permissionDot.setColorFilter(palette.accent);
         permissionTitle.setTextColor(palette.textPrimary);
         permissionStatus.setTextColor(palette.textSecondary);
         statusHint.setTextColor(palette.textSecondary);
         footerText.setTextColor(palette.textSecondary);
+        actionPowerIcon.setColorFilter(Color.WHITE);
+        actionDivider.setBackgroundColor(blendAlpha(Color.WHITE, 70));
+        actionLabel.setTextColor(Color.WHITE);
 
         themeToggleButton.setBackground(makeRoundRect(palette.themeButtonBackground, dp(15), palette.border));
-        themeToggleButton.setImageResource(isLightTheme ? R.drawable.ic_theme_moon : R.drawable.ic_theme_sun);
+        themeToggleButton.setImageResource(isLightTheme ? R.drawable.ic_theme_sun : R.drawable.ic_theme_moon);
         themeToggleButton.setColorFilter(palette.themeIcon);
         themeToggleButton.setContentDescription(getString(
                 isLightTheme ? R.string.theme_switch_to_dark : R.string.theme_switch_to_light
         ));
 
         applySystemBars(palette);
+    }
+
+    private void updateClockPreview() {
+        if (timePreviewText != null) {
+            timePreviewText.setText(clockFormat.format(new Date()));
+        }
+    }
+
+    private void postNextClockTick() {
+        long now = System.currentTimeMillis();
+        long delay = 1000L - (now % 1000L) + CLOCK_TICK_OFFSET_MS;
+        clockHandler.postDelayed(clockTicker, delay);
+    }
+
+    private void bindSystemInsets() {
+        final int start = pageContent.getPaddingStart();
+        final int top = pageContent.getPaddingTop();
+        final int end = pageContent.getPaddingEnd();
+        final int bottom = pageContent.getPaddingBottom();
+
+        root.setOnApplyWindowInsetsListener((view, insets) -> {
+            pageContent.setPaddingRelative(
+                    start,
+                    top,
+                    end,
+                    bottom
+            );
+            return insets;
+        });
+        root.requestApplyInsets();
     }
 
     private void applySystemBars(ThemePalette palette) {
@@ -255,6 +366,8 @@ public class MainActivity extends Activity {
             getWindow().setStatusBarContrastEnforced(false);
             getWindow().setNavigationBarContrastEnforced(false);
         }
+
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
         getWindow().setStatusBarColor(palette.systemBar);
@@ -309,6 +422,112 @@ public class MainActivity extends Activity {
         drawable.setCornerRadius(radiusPx);
         drawable.setStroke(1, strokeColor);
         return drawable;
+    }
+
+    private GradientDrawable makePageBackground() {
+        int[] colors = isLightTheme
+                ? new int[]{
+                Color.rgb(249, 252, 255),
+                Color.rgb(231, 241, 255),
+                Color.rgb(255, 252, 246),
+                Color.rgb(248, 251, 255)
+        }
+                : new int[]{
+                Color.rgb(4, 12, 28),
+                Color.rgb(8, 22, 54),
+                Color.rgb(24, 21, 68),
+                Color.rgb(3, 8, 20)
+        };
+        GradientDrawable drawable = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
+        drawable.setDither(true);
+        return drawable;
+    }
+
+    private GradientDrawable makeTimePillBackground(ThemePalette palette, boolean enabled, boolean canWrite) {
+        int stateColor = canWrite ? (enabled ? palette.accent : palette.off) : palette.warning;
+        int[] colors;
+        if (isLightTheme) {
+            colors = enabled && canWrite
+                    ? new int[]{
+                    Color.argb(244, 255, 255, 255),
+                    Color.argb(226, 216, 235, 255),
+                    Color.argb(242, 239, 247, 255)
+            }
+                    : new int[]{
+                    Color.argb(188, 255, 255, 255),
+                    Color.argb(132, 229, 234, 242),
+                    Color.argb(178, 248, 250, 253)
+            };
+        } else {
+            colors = enabled && canWrite
+                    ? new int[]{
+                    Color.argb(118, 255, 255, 255),
+                    Color.argb(92, 67, 139, 255),
+                    Color.argb(116, 255, 255, 255)
+            }
+                    : new int[]{
+                    Color.argb(42, 255, 255, 255),
+                    Color.argb(34, 110, 119, 138),
+                    Color.argb(44, 255, 255, 255)
+            };
+        }
+        GradientDrawable drawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
+        drawable.setCornerRadius(dp(64));
+        drawable.setStroke(
+                dp(enabled && canWrite ? 2 : 1),
+                blendAlpha(stateColor, enabled && canWrite ? (isLightTheme ? 190 : 230) : (isLightTheme ? 92 : 120))
+        );
+        return drawable;
+    }
+
+    private int resolveTimeTextColor(ThemePalette palette, boolean enabled, boolean canWrite) {
+        if (!canWrite) {
+            return palette.warning;
+        }
+        if (enabled) {
+            return isLightTheme ? Color.rgb(22, 63, 135) : Color.rgb(226, 239, 255);
+        }
+        return isLightTheme ? Color.rgb(92, 101, 119) : Color.rgb(138, 153, 176);
+    }
+
+    private GradientDrawable makeActionBackground(int accent) {
+        int[] colors = new int[]{
+                blendAlpha(Color.WHITE, 18),
+                accent,
+                Color.rgb(13, 94, 255)
+        };
+        GradientDrawable drawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
+        drawable.setCornerRadius(dp(33));
+        drawable.setStroke(dp(1), blendAlpha(Color.WHITE, 135));
+        return drawable;
+    }
+
+    private GradientDrawable makeGlassRect(int radiusPx, int fillColor, int strokeColor) {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setColor(fillColor);
+        drawable.setCornerRadius(radiusPx);
+        drawable.setStroke(dp(1), strokeColor);
+        return drawable;
+    }
+
+    private GradientDrawable makeStatusChipBackground(int accent) {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setColor(blendAlpha(accent, isLightTheme ? 22 : 46));
+        drawable.setCornerRadius(dp(22));
+        drawable.setStroke(dp(1), blendAlpha(accent, isLightTheme ? 92 : 118));
+        return drawable;
+    }
+
+    private GradientDrawable makePermissionIconBackground(int accent) {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setShape(GradientDrawable.OVAL);
+        drawable.setColor(blendAlpha(accent, isLightTheme ? 32 : 42));
+        drawable.setStroke(dp(1), blendAlpha(accent, isLightTheme ? 84 : 104));
+        return drawable;
+    }
+
+    private static int blendAlpha(int color, int alpha) {
+        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
     }
 
     private int dp(int value) {

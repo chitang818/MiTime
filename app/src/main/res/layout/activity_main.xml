@@ -1,46 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.chitang.mitime.AtmosphereScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:fitsSystemWindows="false"
     android:fillViewport="true"
     android:overScrollMode="never">
 
     <LinearLayout
+        android:id="@+id/pageContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:minHeight="640dp"
+        android:minHeight="760dp"
         android:orientation="vertical"
-        android:paddingStart="@dimen/page_padding"
-        android:paddingTop="26dp"
-        android:paddingEnd="@dimen/page_padding"
-        android:paddingBottom="24dp">
+        android:paddingStart="24dp"
+        android:paddingTop="48dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="26dp">
 
         <LinearLayout
+            android:id="@+id/headerBar"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="76dp"
+            android:baselineAligned="false"
             android:gravity="center_vertical"
             android:orientation="horizontal">
-
-            <FrameLayout
-                android:id="@+id/appIconWrap"
-                android:layout_width="46dp"
-                android:layout_height="46dp">
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/app_name"
-                    android:src="@drawable/ic_mitime" />
-            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="13dp"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:translationY="6dp">
 
                 <TextView
                     android:id="@+id/appTitle"
@@ -49,134 +41,230 @@
                     android:includeFontPadding="false"
                     android:text="@string/app_name"
                     android:textColor="@color/text_primary"
-                    android:textSize="25sp"
+                    android:textSize="28sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/homeSubtitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:ellipsize="end"
+                    android:layout_marginTop="7dp"
                     android:includeFontPadding="false"
                     android:maxLines="1"
                     android:text="@string/home_subtitle"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <ImageButton
                 android:id="@+id/themeToggleButton"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:layout_marginStart="10dp"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="12dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/theme_switch_to_light"
-                android:padding="10dp"
+                android:padding="13dp"
                 android:scaleType="center"
                 android:src="@drawable/ic_theme_sun" />
         </LinearLayout>
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/statusPanel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:baselineAligned="false"
-            android:gravity="center_vertical"
-            android:minHeight="132dp"
-            android:orientation="horizontal"
-            android:paddingStart="22dp"
-            android:paddingTop="22dp"
-            android:paddingEnd="22dp"
-            android:paddingBottom="22dp">
+            android:layout_height="334dp"
+            android:layout_marginTop="22dp">
 
-            <FrameLayout
-                android:layout_width="62dp"
-                android:layout_height="62dp">
+            <TextView
+                android:id="@+id/statusTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:includeFontPadding="false"
+                android:text="@string/time_floating_window"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/timePillWrap"
+                android:layout_width="match_parent"
+                android:layout_height="116dp"
+                android:layout_gravity="top|center_horizontal"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="74dp"
+                android:layout_marginEnd="14dp"
+                android:baselineAligned="false"
+                android:elevation="8dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="34dp"
+                android:paddingEnd="28dp"
+                android:rotation="-7">
 
                 <ImageView
                     android:id="@+id/floatingIcon"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
-                    android:layout_gravity="center"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
                     android:contentDescription="@string/time_floating_window"
                     android:src="@drawable/ic_tile_on" />
-            </FrameLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="17dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/statusTitle"
-                    android:layout_width="match_parent"
+                    android:id="@+id/timePreviewText"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_weight="1"
+                    android:fontFamily="sans"
+                    android:gravity="center"
                     android:includeFontPadding="false"
-                    android:text="@string/time_floating_window"
+                    android:text="21:49:08"
                     android:textColor="@color/text_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textSize="45sp" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/connectorLine"
+                android:layout_width="1dp"
+                android:layout_height="52dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginStart="44dp"
+                android:layout_marginBottom="96dp"
+                android:rotation="-28" />
+
+            <LinearLayout
+                android:id="@+id/statusChip"
+                android:layout_width="188dp"
+                android:layout_height="70dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="22dp"
+                android:baselineAligned="false"
+                android:elevation="5dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:translationX="42dp">
+
+                <View
+                    android:id="@+id/statusDot"
+                    android:layout_width="9dp"
+                    android:layout_height="9dp" />
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="11dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <View
-                        android:id="@+id/statusDot"
-                        android:layout_width="8dp"
-                        android:layout_height="8dp" />
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/statusText"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
                         android:includeFontPadding="false"
-                        android:text="@string/status_enabled"
+                        android:text="@string/status_disabled"
                         android:textColor="@color/text_primary"
-                        android:textSize="16sp"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/verifyText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="7dp"
+                        android:includeFontPadding="false"
+                        android:text="@string/verify_ok"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
                 </LinearLayout>
+            </LinearLayout>
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/actionPanel"
+            android:layout_width="match_parent"
+            android:layout_height="96dp"
+            android:layout_marginTop="0dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
+
+            <LinearLayout
+                android:id="@+id/toggleButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:baselineAligned="false"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/actionPowerIcon"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:contentDescription="@string/action_turn_on"
+                    android:src="@drawable/ic_power" />
+
+                <View
+                    android:id="@+id/actionDivider"
+                    android:layout_width="1dp"
+                    android:layout_height="34dp"
+                    android:layout_marginStart="26dp"
+                    android:layout_marginEnd="26dp" />
 
                 <TextView
-                    android:id="@+id/verifyText"
-                    android:layout_width="match_parent"
+                    android:id="@+id/actionLabel"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
                     android:includeFontPadding="false"
-                    android:lineSpacingExtra="2dp"
-                    android:text="@string/verify_ok"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:text="@string/action_turn_on"
+                    android:textColor="@android:color/white"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/statusHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/status_hint"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
 
         <LinearLayout
             android:id="@+id/permissionPanel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="26dp"
+            android:layout_height="92dp"
+            android:layout_marginTop="34dp"
             android:baselineAligned="false"
+            android:elevation="5dp"
             android:gravity="center_vertical"
-            android:minHeight="76dp"
             android:orientation="horizontal"
             android:paddingStart="18dp"
-            android:paddingTop="16dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="16dp">
+            android:paddingEnd="16dp">
 
-            <View
-                android:id="@+id/permissionDot"
-                android:layout_width="8dp"
-                android:layout_height="8dp" />
+            <FrameLayout
+                android:id="@+id/statusIconWrap"
+                android:layout_width="52dp"
+                android:layout_height="52dp">
+
+                <ImageView
+                    android:id="@+id/permissionDot"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/write_settings_permission"
+                    android:src="@drawable/ic_permission_shield" />
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -192,16 +280,16 @@
                     android:includeFontPadding="false"
                     android:text="@string/write_settings_permission"
                     android:textColor="@color/text_primary"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/permissionStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
+                    android:layout_marginTop="8dp"
                     android:includeFontPadding="false"
-                    android:lineSpacingExtra="2dp"
+                    android:maxLines="1"
                     android:text="@string/write_settings_granted"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
@@ -209,9 +297,9 @@
 
             <TextView
                 android:id="@+id/permissionButton"
-                android:layout_width="92dp"
-                android:layout_height="38dp"
-                android:layout_marginStart="12dp"
+                android:layout_width="96dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="10dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -219,36 +307,9 @@
                 android:includeFontPadding="false"
                 android:text="@string/write_settings_open"
                 android:textColor="@color/text_primary"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/toggleButton"
-            android:layout_width="@dimen/toggle_size"
-            android:layout_height="@dimen/toggle_size"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="30dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:text="@string/action_turn_off"
-            android:textColor="@color/text_primary"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/statusHint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:lineSpacingExtra="2dp"
-            android:text="@string/status_hint"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
 
         <Space
             android:layout_width="match_parent"
@@ -264,6 +325,6 @@
             android:includeFontPadding="false"
             android:text="@string/app_footer_fallback"
             android:textColor="@color/text_secondary"
-            android:textSize="11sp" />
+            android:textSize="12sp" />
     </LinearLayout>
-</ScrollView>
+</com.chitang.mitime.AtmosphereScrollView>
