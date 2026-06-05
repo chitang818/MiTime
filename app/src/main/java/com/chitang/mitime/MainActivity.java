@@ -28,11 +28,13 @@ public class MainActivity extends Activity {
     private static final ThemePalette DARK_THEME = new ThemePalette(
             Color.rgb(10, 13, 20),
             Color.rgb(22, 28, 39),
+            Color.rgb(29, 37, 50),
             Color.rgb(242, 246, 255),
             Color.rgb(143, 154, 172),
             Color.rgb(34, 132, 255),
             Color.rgb(13, 71, 150),
             Color.rgb(71, 82, 99),
+            Color.rgb(255, 180, 84),
             Color.rgb(22, 28, 39),
             Color.rgb(242, 246, 255),
             Color.rgb(10, 13, 20),
@@ -41,11 +43,13 @@ public class MainActivity extends Activity {
     private static final ThemePalette LIGHT_THEME = new ThemePalette(
             Color.rgb(246, 248, 251),
             Color.WHITE,
+            Color.rgb(255, 255, 255),
             Color.rgb(18, 24, 38),
             Color.rgb(95, 107, 122),
             Color.rgb(34, 132, 255),
             Color.rgb(216, 233, 255),
             Color.rgb(138, 150, 168),
+            Color.rgb(232, 139, 42),
             Color.rgb(233, 238, 247),
             Color.rgb(18, 24, 38),
             Color.rgb(246, 248, 251),
@@ -76,6 +80,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        currentPalette = resolveThemePalette();
+        setTheme(isLightTheme ? R.style.AppTheme_Light : R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -99,7 +105,6 @@ public class MainActivity extends Activity {
         statusHint = findViewById(R.id.statusHint);
         footerText = findViewById(R.id.footerText);
 
-        currentPalette = resolveThemePalette();
         applyTheme();
         themeToggleButton.setOnClickListener(v -> onThemeToggleClicked());
         permissionButton.setOnClickListener(v -> openWriteSettingsPage());
@@ -157,7 +162,7 @@ public class MainActivity extends Activity {
         FloatingWindowHelper.UiState state = FloatingWindowHelper.readUiState(this);
         boolean canWrite = state != FloatingWindowHelper.UiState.PERMISSION_MISSING;
         boolean enabled = state == FloatingWindowHelper.UiState.ENABLED;
-        int accent = enabled ? palette.accent : palette.off;
+        int accent = canWrite ? (enabled ? palette.accent : palette.off) : palette.warning;
 
         toggleButton.setEnabled(true);
 
@@ -178,14 +183,18 @@ public class MainActivity extends Activity {
         statusHint.setText(canWrite ? R.string.status_hint : R.string.status_hint_write_settings_off);
 
         statusDot.setBackground(makeOval(accent));
-        permissionDot.setBackground(makeOval(canWrite ? palette.accent : palette.off));
+        permissionDot.setBackground(makeOval(canWrite ? palette.accent : palette.warning));
         floatingIcon.setColorFilter(accent);
         toggleButton.setTextColor(Color.WHITE);
         toggleButton.setBackground(makeOval(accent));
-        permissionButton.setTextColor(Color.WHITE);
-        permissionButton.setBackground(makeRoundRect(canWrite ? palette.off : palette.accent, dp(18), palette.border));
-        statusPanel.setBackground(makeRoundRect(palette.surface, dp(28), palette.border));
-        permissionPanel.setBackground(makeRoundRect(palette.surface, dp(24), palette.border));
+        permissionButton.setTextColor(canWrite ? palette.textPrimary : Color.WHITE);
+        permissionButton.setBackground(makeRoundRect(
+                canWrite ? palette.controlBackground : palette.warning,
+                dp(19),
+                canWrite ? palette.border : palette.warning
+        ));
+        statusPanel.setBackground(makeRoundRect(palette.surfaceElevated, dp(26), palette.border));
+        permissionPanel.setBackground(makeRoundRect(palette.surface, dp(22), palette.border));
 
         if (animated) {
             animateStateChange(statusPanel, floatingIcon);
@@ -206,9 +215,10 @@ public class MainActivity extends Activity {
     private void applyTheme() {
         ThemePalette palette = currentPalette != null ? currentPalette : resolveThemePalette();
         root.setBackgroundColor(palette.background);
-        appIconWrap.setBackground(makeRoundRect(palette.appIconBackground, dp(18), palette.border));
-        statusPanel.setBackground(makeRoundRect(palette.surface, dp(28), palette.border));
-        permissionPanel.setBackground(makeRoundRect(palette.surface, dp(24), palette.border));
+        getWindow().getDecorView().setBackgroundColor(palette.background);
+        appIconWrap.setBackground(makeRoundRect(palette.appIconBackground, dp(16), palette.border));
+        statusPanel.setBackground(makeRoundRect(palette.surfaceElevated, dp(26), palette.border));
+        permissionPanel.setBackground(makeRoundRect(palette.surface, dp(22), palette.border));
 
         appTitle.setTextColor(palette.textPrimary);
         homeSubtitle.setTextColor(palette.textSecondary);
@@ -220,7 +230,7 @@ public class MainActivity extends Activity {
         statusHint.setTextColor(palette.textSecondary);
         footerText.setTextColor(palette.textSecondary);
 
-        themeToggleButton.setBackground(makeRoundRect(palette.themeButtonBackground, dp(16), palette.border));
+        themeToggleButton.setBackground(makeRoundRect(palette.themeButtonBackground, dp(15), palette.border));
         themeToggleButton.setImageResource(isLightTheme ? R.drawable.ic_theme_moon : R.drawable.ic_theme_sun);
         themeToggleButton.setColorFilter(palette.themeIcon);
         themeToggleButton.setContentDescription(getString(
@@ -241,18 +251,17 @@ public class MainActivity extends Activity {
         );
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
-        getWindow().setStatusBarColor(palette.systemBar);
-        getWindow().setNavigationBarColor(palette.systemBar);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            getWindow().setNavigationBarDividerColor(palette.systemBar);
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             getWindow().setStatusBarContrastEnforced(false);
             getWindow().setNavigationBarContrastEnforced(false);
         }
 
         int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+        getWindow().setStatusBarColor(palette.systemBar);
+        getWindow().setNavigationBarColor(palette.systemBar);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            getWindow().setNavigationBarDividerColor(palette.systemBar);
+        }
         if (isLightTheme && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
         }
@@ -340,24 +349,29 @@ public class MainActivity extends Activity {
     private static final class ThemePalette {
         final int background;
         final int surface;
+        final int surfaceElevated;
         final int textPrimary;
         final int textSecondary;
         final int accent;
         final int appIconBackground;
         final int off;
+        final int warning;
         final int themeButtonBackground;
         final int themeIcon;
         final int systemBar;
         final int border;
+        final int controlBackground;
 
         ThemePalette(
                 int background,
                 int surface,
+                int surfaceElevated,
                 int textPrimary,
                 int textSecondary,
                 int accent,
                 int appIconBackground,
                 int off,
+                int warning,
                 int themeButtonBackground,
                 int themeIcon,
                 int systemBar,
@@ -365,15 +379,18 @@ public class MainActivity extends Activity {
         ) {
             this.background = background;
             this.surface = surface;
+            this.surfaceElevated = surfaceElevated;
             this.textPrimary = textPrimary;
             this.textSecondary = textSecondary;
             this.accent = accent;
             this.appIconBackground = appIconBackground;
             this.off = off;
+            this.warning = warning;
             this.themeButtonBackground = themeButtonBackground;
             this.themeIcon = themeIcon;
             this.systemBar = systemBar;
             this.border = border;
+            this.controlBackground = themeButtonBackground;
         }
     }
 }

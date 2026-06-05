@@ -5,13 +5,12 @@
     android:viewportWidth="48"
     android:viewportHeight="48">
     <path
-        android:fillColor="@color/hyperos_blue"
+        android:fillColor="@color/state_warning"
         android:pathData="M24,5.5c-10.22,0 -18.5,8.28 -18.5,18.5S13.78,42.5 24,42.5 42.5,34.22 42.5,24 34.22,5.5 24,5.5zM24,9.7c7.9,0 14.3,6.4 14.3,14.3S31.9,38.3 24,38.3 9.7,31.9 9.7,24 16.1,9.7 24,9.7z" />
     <path
-        android:fillColor="@color/hyperos_blue"
+        android:fillColor="@color/state_warning"
         android:pathData="M22.1,13.8h4.2v10.4l7.7,4.63 -2.1,3.46 -9.8,-5.88z" />
     <path
-        android:fillColor="@color/hyperos_blue"
-        android:fillAlpha="0.24"
-        android:pathData="M15.2,11.2c3.92,-2.9 9.26,-3.82 14.1,-2.04 4.34,1.6 7.69,5.12 9.19,9.42 -4.37,-5.14 -10.78,-8.3 -17.89,-8.3 -1.66,0 -3.26,0.17 -4.6,0.57z" />
+        android:fillColor="@color/state_warning"
+        android:pathData="M22,28h4v4h-4zM22.4,15.5h3.2v11h-3.2z" />
 </vector>

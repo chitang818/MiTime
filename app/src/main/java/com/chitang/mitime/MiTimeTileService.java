@@ -42,7 +42,8 @@ public class MiTimeTileService extends TileService {
         boolean canWrite = state != FloatingWindowHelper.UiState.PERMISSION_MISSING;
 
         tile.setLabel(getString(R.string.app_name));
-        tile.setIcon(Icon.createWithResource(this, enabled ? R.drawable.ic_tile_on : R.drawable.ic_tile_off));
+        tile.setIcon(Icon.createWithResource(this,
+                canWrite ? (enabled ? R.drawable.ic_tile_on : R.drawable.ic_tile_off) : R.drawable.ic_tile_unavailable));
 
         tile.setState(canWrite
                 ? (enabled ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE)

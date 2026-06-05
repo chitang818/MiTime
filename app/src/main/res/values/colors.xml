@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="bg">#0A0D14</color>
+    <color name="bg_light">#F6F8FB</color>
     <color name="surface">#161C27</color>
+    <color name="surface_elevated">#1D2532</color>
     <color name="text_primary">#F2F6FF</color>
     <color name="text_secondary">#8F9AAC</color>
     <color name="hyperos_blue">#2284FF</color>
+    <color name="hyperos_blue_soft">#1B4F8F</color>
     <color name="state_off">#475263</color>
+    <color name="state_warning">#FFB454</color>
 </resources>

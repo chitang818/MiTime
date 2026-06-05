@@ -12,46 +12,64 @@
         android:minHeight="640dp"
         android:orientation="vertical"
         android:paddingStart="@dimen/page_padding"
-        android:paddingTop="34dp"
+        android:paddingTop="26dp"
         android:paddingEnd="@dimen/page_padding"
-        android:paddingBottom="28dp">
+        android:paddingBottom="24dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="50dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <FrameLayout
                 android:id="@+id/appIconWrap"
-                android:layout_width="44dp"
-                android:layout_height="44dp">
+                android:layout_width="46dp"
+                android:layout_height="46dp">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:layout_gravity="center"
                     android:contentDescription="@string/app_name"
                     android:src="@drawable/ic_mitime" />
             </FrameLayout>
 
-            <TextView
-                android:id="@+id/appTitle"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
+                android:layout_marginStart="13dp"
                 android:layout_weight="1"
-                android:includeFontPadding="false"
-                android:text="@string/app_name"
-                android:textColor="@color/text_primary"
-                android:textSize="28sp"
-                android:textStyle="bold" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/appTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="@string/app_name"
+                    android:textColor="@color/text_primary"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/homeSubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/home_subtitle"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
             <ImageButton
                 android:id="@+id/themeToggleButton"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginStart="12dp"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_marginStart="10dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/theme_switch_to_light"
                 android:padding="10dp"
@@ -59,24 +77,14 @@
                 android:src="@drawable/ic_theme_sun" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/homeSubtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:lineSpacingExtra="3dp"
-            android:text="@string/home_subtitle"
-            android:textColor="@color/text_secondary"
-            android:textSize="15sp" />
-
         <LinearLayout
             android:id="@+id/statusPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="28dp"
             android:baselineAligned="false"
             android:gravity="center_vertical"
-            android:minHeight="124dp"
+            android:minHeight="132dp"
             android:orientation="horizontal"
             android:paddingStart="22dp"
             android:paddingTop="22dp"
@@ -84,8 +92,8 @@
             android:paddingBottom="22dp">
 
             <FrameLayout
-                android:layout_width="58dp"
-                android:layout_height="58dp">
+                android:layout_width="62dp"
+                android:layout_height="62dp">
 
                 <ImageView
                     android:id="@+id/floatingIcon"
@@ -99,7 +107,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="17dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -110,20 +118,20 @@
                     android:includeFontPadding="false"
                     android:text="@string/time_floating_window"
                     android:textColor="@color/text_primary"
-                    android:textSize="19sp"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="11dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <View
                         android:id="@+id/statusDot"
-                        android:layout_width="9dp"
-                        android:layout_height="9dp" />
+                        android:layout_width="8dp"
+                        android:layout_height="8dp" />
 
                     <TextView
                         android:id="@+id/statusText"
@@ -134,18 +142,20 @@
                         android:includeFontPadding="false"
                         android:text="@string/status_enabled"
                         android:textColor="@color/text_primary"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
-            <TextView
-                android:id="@+id/verifyText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="9dp"
-                android:includeFontPadding="false"
-                android:textColor="@color/text_secondary"
-                android:text="@string/verify_ok"
-                android:textSize="13sp" />
+                <TextView
+                    android:id="@+id/verifyText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:includeFontPadding="false"
+                    android:lineSpacingExtra="2dp"
+                    android:text="@string/verify_ok"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -153,20 +163,20 @@
             android:id="@+id/permissionPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="26dp"
             android:baselineAligned="false"
             android:gravity="center_vertical"
-            android:minHeight="82dp"
+            android:minHeight="76dp"
             android:orientation="horizontal"
-            android:paddingStart="20dp"
-            android:paddingTop="18dp"
-            android:paddingEnd="18dp"
-            android:paddingBottom="18dp">
+            android:paddingStart="18dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp">
 
             <View
                 android:id="@+id/permissionDot"
-                android:layout_width="10dp"
-                android:layout_height="10dp" />
+                android:layout_width="8dp"
+                android:layout_height="8dp" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -182,7 +192,7 @@
                     android:includeFontPadding="false"
                     android:text="@string/write_settings_permission"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -191,15 +201,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="7dp"
                     android:includeFontPadding="false"
+                    android:lineSpacingExtra="2dp"
                     android:text="@string/write_settings_granted"
                     android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/permissionButton"
-                android:layout_width="88dp"
-                android:layout_height="40dp"
+                android:layout_width="92dp"
+                android:layout_height="38dp"
                 android:layout_marginStart="12dp"
                 android:clickable="true"
                 android:focusable="true"
@@ -208,7 +219,7 @@
                 android:includeFontPadding="false"
                 android:text="@string/write_settings_open"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -217,26 +228,27 @@
             android:layout_width="@dimen/toggle_size"
             android:layout_height="@dimen/toggle_size"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="34dp"
+            android:layout_marginTop="30dp"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
             android:includeFontPadding="false"
             android:text="@string/action_turn_off"
             android:textColor="@color/text_primary"
-            android:textSize="30sp"
+            android:textSize="28sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/statusHint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="18dp"
             android:gravity="center"
             android:includeFontPadding="false"
+            android:lineSpacingExtra="2dp"
             android:text="@string/status_hint"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
 
         <Space
             android:layout_width="match_parent"
@@ -247,11 +259,11 @@
             android:id="@+id/footerText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
+            android:layout_marginTop="26dp"
             android:gravity="center"
             android:includeFontPadding="false"
             android:text="@string/app_footer_fallback"
             android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
+            android:textSize="11sp" />
     </LinearLayout>
 </ScrollView>

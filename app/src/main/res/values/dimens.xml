@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="page_padding">28dp</dimen>
-    <dimen name="toggle_size">168dp</dimen>
+    <dimen name="toggle_size">154dp</dimen>
 </resources>

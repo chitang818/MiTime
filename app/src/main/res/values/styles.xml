@@ -9,4 +9,14 @@
         <item name="android:navigationBarColor">@color/bg</item>
         <item name="android:statusBarColor">@color/bg</item>
     </style>
+
+    <style name="AppTheme.Light" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">@color/hyperos_blue</item>
+        <item name="android:windowBackground">@color/bg_light</item>
+        <item name="android:navigationBarColor">@color/bg_light</item>
+        <item name="android:statusBarColor">@color/bg_light</item>
+    </style>
 </resources>

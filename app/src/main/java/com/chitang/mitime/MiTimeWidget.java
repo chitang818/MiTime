@@ -61,9 +61,10 @@ public class MiTimeWidget extends AppWidgetProvider {
                         ? (enabled ? R.string.status_enabled_short : R.string.status_disabled_short)
                         : R.string.status_write_settings_off_short)
         );
-        views.setImageViewResource(R.id.widgetIcon, enabled ? R.drawable.ic_tile_on : R.drawable.ic_tile_off);
+        views.setImageViewResource(R.id.widgetIcon,
+                canWrite ? (enabled ? R.drawable.ic_tile_on : R.drawable.ic_tile_off) : R.drawable.ic_tile_unavailable);
         views.setInt(R.id.widgetRoot, "setBackgroundResource",
-                enabled ? R.drawable.bg_widget_on : R.drawable.bg_widget_off);
+                canWrite ? (enabled ? R.drawable.bg_widget_on : R.drawable.bg_widget_off) : R.drawable.bg_widget_unavailable);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
