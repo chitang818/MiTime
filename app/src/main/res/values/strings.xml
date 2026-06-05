@@ -28,4 +28,6 @@
     <string name="toggle_failed">切换失败，请检查系统权限</string>
     <string name="toggle_need_system_settings">请先获取修改系统设置权限</string>
     <string name="toggle_blocked_private_setting">当前系统限制第三方 App 修改此开关，请在开发者选项中手动切换</string>
+    <string name="theme_switch_to_light">切换到浅色模式</string>
+    <string name="theme_switch_to_dark">切换到深色模式</string>
 </resources>

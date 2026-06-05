@@ -5,9 +5,9 @@
 
     <application
         android:allowBackup="false"
-        android:icon="@drawable/ic_mitime"
+        android:icon="@mipmap/ic_mitime"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/ic_mitime"
+        android:roundIcon="@mipmap/ic_mitime"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
