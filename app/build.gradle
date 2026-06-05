@@ -1,0 +1,44 @@
+plugins {
+    id "com.android.application"
+}
+
+def mitimeVersionCode = (findProperty("MITIME_VERSION_CODE") ?: "1").toString().toInteger()
+def mitimeVersionName = (findProperty("MITIME_VERSION_NAME") ?: "1.0").toString()
+
+android {
+    namespace "com.chitang.mitime"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.chitang.mitime"
+        // HyperOS only allows this MIUI private System setting through the
+        // legacy WRITE_SETTINGS compatibility path used by targetSdk <= 22.
+        minSdk 22
+        targetSdk 22
+        versionCode mitimeVersionCode
+        versionName mitimeVersionName
+    }
+
+    lint {
+        disable "ExpiredTargetSdkVersion"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+tasks.register("grantWriteSettingsDebug") {
+    doLast {
+        exec {
+            executable android.adbExecutable
+            args "shell", "appops", "set", "com.chitang.mitime", "WRITE_SETTINGS", "allow"
+            ignoreExitValue true
+        }
+    }
+}
+
+tasks.matching { it.name == "installDebug" }.configureEach {
+    finalizedBy("grantWriteSettingsDebug")
+}

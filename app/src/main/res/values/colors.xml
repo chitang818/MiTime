@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#0A0D14</color>
+    <color name="surface">#161C27</color>
+    <color name="text_primary">#F2F6FF</color>
+    <color name="text_secondary">#8F9AAC</color>
+    <color name="hyperos_blue">#2284FF</color>
+    <color name="state_off">#475263</color>
+</resources>

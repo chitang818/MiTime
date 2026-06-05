@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_icon_label"
+    android:initialLayout="@layout/widget_mitime_icon"
+    android:minHeight="72dp"
+    android:minWidth="72dp"
+    android:previewImage="@drawable/ic_mitime"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0" />
