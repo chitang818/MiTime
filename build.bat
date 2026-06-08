@@ -19,7 +19,8 @@ set "BUILD_EXIT_CODE=%ERRORLEVEL%"
 echo.
 if "%BUILD_EXIT_CODE%"=="0" (
     echo Build finished successfully.
-    echo APK: app\build\outputs\apk\debug\app-debug.apk
+    echo Found APKs:
+    for /r "app\build\outputs\apk" %%I in (*.apk) do echo %%~dpnxI
 ) else (
     echo Build failed. Exit code: %BUILD_EXIT_CODE%
 )

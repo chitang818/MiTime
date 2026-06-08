@@ -142,11 +142,5 @@ public class AtmosphereScrollView extends ScrollView {
         path.lineTo(0, height);
         path.close();
         canvas.drawPath(path, paint);
-
-        paint.setColor(Color.argb(78, 98, 99, 180));
-        for (int i = 0; i < 7; i++) {
-            float y = base + 18 + i * 7;
-            canvas.drawLine(0, y, width, y + 2, paint);
-        }
     }
 }
