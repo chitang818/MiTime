@@ -27,6 +27,7 @@
     <string name="quick_settings_tile_request_failed">系统暂不支持自动请求，请手动添加</string>
     <string name="quick_settings_tile_manual_toast">Android 12 及以下需要在快捷设置编辑页手动添加</string>
     <string name="quick_settings_tile_page_failed">无法打开快捷设置页面</string>
+    <string name="home_widget_manual_hint">支持创建桌面小组件，需长按桌面空白处手动添加</string>
     <string name="readiness_title">系统准备状态</string>
     <string name="status_badge_done">已获取</string>
     <string name="status_badge_added">已添加</string>

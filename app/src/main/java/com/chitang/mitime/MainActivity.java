@@ -95,6 +95,8 @@ public class MainActivity extends Activity {
     private ImageView tileIcon;
     private TextView tileTitle;
     private TextView tileButton;
+    private View widgetManualHintDivider;
+    private TextView widgetManualHint;
     private TextView footerText;
     private ThemePalette currentPalette;
     private boolean isLightTheme;
@@ -142,6 +144,8 @@ public class MainActivity extends Activity {
         tileIcon = findViewById(R.id.tileIcon);
         tileTitle = findViewById(R.id.tileTitle);
         tileButton = findViewById(R.id.tileButton);
+        widgetManualHintDivider = findViewById(R.id.widgetManualHintDivider);
+        widgetManualHint = findViewById(R.id.widgetManualHint);
         footerText = findViewById(R.id.footerText);
 
         bindSystemInsets();
@@ -298,6 +302,8 @@ public class MainActivity extends Activity {
         permissionTitle.setTextColor(palette.textPrimary);
         tileIcon.setColorFilter(palette.accent);
         tileTitle.setTextColor(palette.textPrimary);
+        widgetManualHintDivider.setBackgroundColor(blendAlpha(palette.textSecondary, isLightTheme ? 22 : 32));
+        widgetManualHint.setTextColor(palette.textSecondary);
         footerText.setTextColor(palette.textSecondary);
 
         themeToggleButton.setBackground(makeRoundRect(palette.themeButtonBackground, dp(15), palette.border));
