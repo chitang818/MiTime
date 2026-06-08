@@ -216,7 +216,6 @@ MiTime/
 │   │   └── AndroidManifest.xml
 │   └── build.gradle
 ├── docs/
-│   ├── MiTime软件功能介绍.md
 │   └── screenshots/
 ├── build.ps1
 ├── install-debug.ps1
